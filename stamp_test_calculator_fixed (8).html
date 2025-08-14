@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расчет модулей деформации по ОДМ 218.5.007-2016</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        
+        .vertical-table {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .table-column {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            min-width: 250px;
+        }
+        
+        .table-column h3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        
+        .input-row label {
+            flex: 1;
+            margin: 0;
+            font-size: 14px;
+            min-width: 80px;
+        }
+        
+        .input-row input {
+            flex: 2;
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        .readonly {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+        
+        .results {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .results h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .result-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        #chart {
+            width: 100%;
+            height: 500px;
+        }
+        
+        .info-text {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+        }
+        
+        .success {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+        
+        .error {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        
+        @media (max-width: 768px) {
+            .table-column {
+                min-width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Расчет модулей деформации по ОДМ 218.5.007-2016</h1>
+            <p>Методические рекомендации по определению модуля упругости статическим штампом</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="testLocation">Место проведения испытания:</label>
+                    <input type="text" id="testLocation" placeholder="Например: км 125+500, правая полоса" style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label for="plateSize">Диаметр нагрузочной плиты:</label>
+                    <select id="plateSize" onchange="updateTable()">
+                        <option value="300">300 мм</option>
+                        <option value="600">600 мм</option>
+                        <option value="762">762 мм</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="info-text">
+                <strong>Инструкция:</strong> Введите значения осадки (s) в миллиметрах для каждой ступени нагружения. 
+                Нагрузка (σ) рассчитывается автоматически согласно ОДМ 218.5.007-2016.
+            </div>
+            
+            <div class="vertical-table">
+                <div class="table-column">
+                    <h3>Первичное нагружение</h3>
+                    <div id="primaryLoading"></div>
+                </div>
+                
+                <div class="table-column">
+                    <h3>Разгрузка</h3>
+                    <div id="unloading"></div>
+                </div>
+                
+                <div class="table-column">
+                    <h3>Вторичное нагружение</h3>
+                    <div id="secondaryLoading"></div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" onclick="calculate()">Рассчитать</button>
+                <button class="btn btn-secondary" onclick="clearForm()">Очистить</button>
+                <button class="btn btn-secondary" onclick="loadExample()">Загрузить пример</button>
+                <br>
+                <button class="btn btn-success" onclick="exportToExcel()">Сохранить в Excel</button>
+                <button class="btn btn-info" onclick="exportToPDF()">Сохранить в PDF</button>
+            </div>
+            
+            <div class="results" id="results" style="display: none;">
+                <h2>Результаты расчета</h2>
+                
+                <div class="result-item">
+                    <span class="result-label">Модуль общей деформации E<sub>v1</sub>:</span>
+                    <span class="result-value" id="Ev1">-</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">Модуль упругости E<sub>v2</sub>:</span>
+                    <span class="result-value" id="Ev2">-</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">Модульный коэффициент K<sub>E</sub>:</span>
+                    <span class="result-value" id="KE">-</span>
+                </div>
+                
+                <div id="qualityMessage"></div>
+                
+                <details style="margin-top: 20px;">
+                    <summary style="cursor: pointer; font-weight: 600; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                        Промежуточные расчеты
+                    </summary>
+                    <div style="padding: 15px; background: #fafafa; margin-top: 10px; border-radius: 5px;">
+                        <table style="width: 100%; font-size: 14px;">
+                            <tr>
+                                <td style="text-align: left; padding: 5px;">σ<sub>1</sub> (30% от max):</td>
+                                <td style="text-align: right; padding: 5px;" id="sigma1_val">-</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; padding: 5px;">σ<sub>2</sub> (70% от max):</td>
+                                <td style="text-align: right; padding: 5px;" id="sigma2_val">-</td>
+                            </tr>
+                            <tr style="background: #e8e8e8;">
+                                <td style="text-align: left; padding: 5px;"><strong>Первичное нагружение:</strong></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; padding: 5px;">s<sub>1</sub><sup>v1</sup>:</td>
+                                <td style="text-align: right; padding: 5px;" id="s1_v1_val">-</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; padding: 5px;">s<sub>2</sub><sup>v1</sup>:</td>
+                                <td style="text-align: right; padding: 5px;" id="s2_v1_val">-</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; padding: 5px;">Δs<sup>v1</sup>:</td>
+                                <td style="text-align: right; padding: 5px;" id="delta_s_v1_val">-</td>
+                            </tr>
+                            <tr style="background: #e8e8e8;">
+                                <td style="text-align: left; padding: 5px;"><strong>Вторичное нагружение:</strong></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; padding: 5px;">s<sub>1</sub><sup>v2</sup>:</td>
+                                <td style="text-align: right; padding: 5px;" id="s1_v2_val">-</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; padding: 5px;">s<sub>2</sub><sup>v2</sup>:</td>
+                                <td style="text-align: right; padding: 5px;" id="s2_v2_val">-</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; padding: 5px;">Δs<sup>v2</sup>:</td>
+                                <td style="text-align: right; padding: 5px;" id="delta_s_v2_val">-</td>
+                            </tr>
+                        </table>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="chart-container" id="chartContainer" style="display: none;">
+                <h2 style="text-align: center; margin-bottom: 20px;">График испытания статическим штампом</h2>
+                <div id="chart"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Добавляем кастомные шрифты для PDF с поддержкой кириллицы
+        window.jsPDF = window.jspdf.jsPDF;
+        
+        // Таблица нагрузок для разных диаметров плит (согласно вашим данным)
+        const stressValues = {
+            300: {
+                primary: [0, 0.08, 0.16, 0.25, 0.33, 0.42, 0.50],
+                unload: [0.25, 0.125, 0.01],
+                secondary: [0.08, 0.16, 0.25, 0.33, 0.42]
+            },
+            600: {
+                primary: [0, 0.04, 0.08, 0.12, 0.16, 0.20, 0.25],
+                unload: [0.12, 0.06, 0.01],
+                secondary: [0.04, 0.08, 0.12, 0.16, 0.20]
+            },
+            762: {
+                primary: [0, 0.02, 0.04, 0.08, 0.12, 0.16, 0.20],
+                unload: [0.10, 0.05, 0.005],
+                secondary: [0.02, 0.04, 0.08, 0.12, 0.16]
+            }
+        };
+        
+        let currentData = {
+            plateSize: 300,
+            settlements: [],
+            stresses: []
+        };
+        
+        function updateTable() {
+            const plateSize = parseInt(document.getElementById('plateSize').value);
+            const stresses = stressValues[plateSize];
+            
+            // Обновляем первичное нагружение
+            let primaryHTML = '';
+            stresses.primary.forEach((stress, i) => {
+                const readonly = i === 0 ? 'readonly class="readonly"' : '';
+                const value = i === 0 ? '0' : '';
+                primaryHTML += `
+                    <div class="input-row">
+                        <label>σ = ${stress.toFixed(3)}</label>
+                        <input type="number" step="0.01" id="p${i}" placeholder="s, мм" ${readonly} value="${value}">
+                    </div>
+                `;
+            });
+            document.getElementById('primaryLoading').innerHTML = primaryHTML;
+            
+            // Обновляем разгрузку
+            let unloadHTML = '';
+            stresses.unload.forEach((stress, i) => {
+                unloadHTML += `
+                    <div class="input-row">
+                        <label>σ = ${stress.toFixed(3)}</label>
+                        <input type="number" step="0.01" id="u${i}" placeholder="s, мм">
+                    </div>
+                `;
+            });
+            document.getElementById('unloading').innerHTML = unloadHTML;
+            
+            // Обновляем вторичное нагружение
+            let secondaryHTML = '';
+            stresses.secondary.forEach((stress, i) => {
+                secondaryHTML += `
+                    <div class="input-row">
+                        <label>σ = ${stress.toFixed(3)}</label>
+                        <input type="number" step="0.01" id="s${i}" placeholder="s, мм">
+                    </div>
+                `;
+            });
+            document.getElementById('secondaryLoading').innerHTML = secondaryHTML;
+        }
+        
+        function clearForm() {
+            document.getElementById('testLocation').value = '';
+            updateTable();
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('chartContainer').style.display = 'none';
+        }
+        
+        function loadExample() {
+            // Загружаем пример из документа для 300 мм
+            document.getElementById('plateSize').value = '300';
+            document.getElementById('testLocation').value = 'км 125+500, правая полоса, ПК 234+50';
+            updateTable();
+            
+            const exampleData = {
+                primary: [0, 1.55, 2.39, 2.97, 3.39, 3.83, 4.2],
+                unload: [4.12, 3.71, 2.59],
+                secondary: [3.09, 3.53, 3.83, 3.99, 4.13]
+            };
+            
+            exampleData.primary.forEach((val, i) => {
+                if (i > 0) document.getElementById(`p${i}`).value = val;
+            });
+            exampleData.unload.forEach((val, i) => {
+                document.getElementById(`u${i}`).value = val;
+            });
+            exampleData.secondary.forEach((val, i) => {
+                document.getElementById(`s${i}`).value = val;
+            });
+        }
+        
+        function getAllSettlements() {
+            const plateSize = parseInt(document.getElementById('plateSize').value);
+            const stresses = stressValues[plateSize];
+            const settlements = [];
+            
+            // Первичное нагружение
+            for (let i = 0; i < stresses.primary.length; i++) {
+                const value = parseFloat(document.getElementById(`p${i}`).value) || 0;
+                settlements.push(value);
+            }
+            
+            // Разгрузка
+            for (let i = 0; i < stresses.unload.length; i++) {
+                const value = parseFloat(document.getElementById(`u${i}`).value) || 0;
+                settlements.push(value);
+            }
+            
+            // Вторичное нагружение
+            for (let i = 0; i < stresses.secondary.length; i++) {
+                const value = parseFloat(document.getElementById(`s${i}`).value) || 0;
+                settlements.push(value);
+            }
+            
+            return settlements;
+        }
+        
+        function getAllStresses() {
+            const plateSize = parseInt(document.getElementById('plateSize').value);
+            const stresses = stressValues[plateSize];
+            return [...stresses.primary, ...stresses.unload, ...stresses.secondary];
+        }
+        
+        function calculate() {
+            const plateSize = parseInt(document.getElementById('plateSize').value);
+            const D = plateSize / 1000; // Перевод в метры
+            
+            // Получаем все осадки
+            const settlements = getAllSettlements();
+            const settlementsM = settlements.map(s => s / 1000); // В метры
+            
+            // Проверка что данные введены
+            const hasData = settlements.some(s => s > 0);
+            if (!hasData) {
+                alert('Пожалуйста, введите данные осадок');
+                return;
+            }
+            
+            currentData.plateSize = plateSize;
+            currentData.settlements = settlements;
+            currentData.stresses = getAllStresses();
+            
+            // Определяем значения нагрузок для 30% и 70% от максимальной
+            let sigma1, sigma2;
+            let s1_v1, s2_v1, s1_v2, s2_v2;
+            
+            const stresses = stressValues[plateSize];
+            const primarySettlements = settlementsM.slice(0, stresses.primary.length);
+            const secondaryStartIdx = stresses.primary.length + stresses.unload.length;
+            const secondarySettlements = settlementsM.slice(secondaryStartIdx);
+            
+            if (plateSize === 300) {
+                sigma1 = 0.15; // 30% от 0.5
+                sigma2 = 0.35; // 70% от 0.5
+                
+                // Интерполяция для первичного нагружения
+                const ratio1_v1 = (0.15 - 0.08) / (0.16 - 0.08);
+                s1_v1 = primarySettlements[1] + ratio1_v1 * (primarySettlements[2] - primarySettlements[1]);
+                
+                const ratio2_v1 = (0.35 - 0.33) / (0.42 - 0.33);
+                s2_v1 = primarySettlements[4] + ratio2_v1 * (primarySettlements[5] - primarySettlements[4]);
+                
+                // Интерполяция для вторичного нагружения
+                const ratio1_v2 = (0.15 - 0.08) / (0.16 - 0.08);
+                s1_v2 = secondarySettlements[0] + ratio1_v2 * (secondarySettlements[1] - secondarySettlements[0]);
+                
+                const ratio2_v2 = (0.35 - 0.33) / (0.42 - 0.33);
+                s2_v2 = secondarySettlements[3] + ratio2_v2 * (secondarySettlements[4] - secondarySettlements[3]);
+                
+            } else if (plateSize === 600) {
+                sigma1 = 0.075; // 30% от 0.25
+                sigma2 = 0.175; // 70% от 0.25
+                
+                // Интерполяция для первичного нагружения
+                const ratio1_v1 = (0.075 - 0.04) / (0.08 - 0.04);
+                s1_v1 = primarySettlements[1] + ratio1_v1 * (primarySettlements[2] - primarySettlements[1]);
+                
+                const ratio2_v1 = (0.175 - 0.16) / (0.20 - 0.16);
+                s2_v1 = primarySettlements[4] + ratio2_v1 * (primarySettlements[5] - primarySettlements[4]);
+                
+                // Интерполяция для вторичного нагружения
+                const ratio1_v2 = (0.075 - 0.04) / (0.08 - 0.04);
+                s1_v2 = secondarySettlements[0] + ratio1_v2 * (secondarySettlements[1] - secondarySettlements[0]);
+                
+                const ratio2_v2 = (0.175 - 0.16) / (0.20 - 0.16);
+                s2_v2 = secondarySettlements[3] + ratio2_v2 * (secondarySettlements[4] - secondarySettlements[3]);
+                
+            } else { // 762 мм
+                sigma1 = 0.06; // 30% от 0.20
+                sigma2 = 0.14; // 70% от 0.20
+                
+                // Интерполяция для первичного нагружения
+                const ratio1_v1 = (0.06 - 0.04) / (0.08 - 0.04);
+                s1_v1 = primarySettlements[2] + ratio1_v1 * (primarySettlements[3] - primarySettlements[2]);
+                
+                const ratio2_v1 = (0.14 - 0.12) / (0.16 - 0.12);
+                s2_v1 = primarySettlements[4] + ratio2_v1 * (primarySettlements[5] - primarySettlements[4]);
+                
+                // Интерполяция для вторичного нагружения
+                const ratio1_v2 = (0.06 - 0.04) / (0.08 - 0.04);
+                s1_v2 = secondarySettlements[1] + ratio1_v2 * (secondarySettlements[2] - secondarySettlements[1]);
+                
+                const ratio2_v2 = (0.14 - 0.12) / (0.16 - 0.12);
+                s2_v2 = secondarySettlements[3] + ratio2_v2 * (secondarySettlements[4] - secondarySettlements[3]);
+            }
+            
+            // Расчет приращений
+            const deltaStress = sigma2 - sigma1;
+            const deltaS_v1 = s2_v1 - s1_v1;
+            const deltaS_v2 = s2_v2 - s1_v2;
+            
+            // Проверка на корректность данных
+            if (deltaS_v1 <= 0 || deltaS_v2 <= 0) {
+                alert('Ошибка: Некорректные данные осадки. Осадка должна увеличиваться с ростом нагрузки.');
+                return;
+            }
+            
+            // Расчет модулей по формулам из ОДМ 218.5.007-2016
+            const Ev1 = 0.75 * D * deltaStress / deltaS_v1;
+            const Ev2 = 0.75 * D * deltaStress / deltaS_v2;
+            const KE = Ev2 / Ev1;
+            
+            // Сохраняем результаты
+            currentData.results = {
+                Ev1: Ev1,
+                Ev2: Ev2,
+                KE: KE,
+                sigma1: sigma1,
+                sigma2: sigma2,
+                s1_v1: s1_v1 * 1000,
+                s2_v1: s2_v1 * 1000,
+                s1_v2: s1_v2 * 1000,
+                s2_v2: s2_v2 * 1000,
+                deltaS_v1: deltaS_v1 * 1000,
+                deltaS_v2: deltaS_v2 * 1000
+            };
+            
+            // Отображение результатов
+            document.getElementById('Ev1').textContent = Ev1.toFixed(1) + ' МН/м²';
+            document.getElementById('Ev2').textContent = Ev2.toFixed(1) + ' МН/м²';
+            document.getElementById('KE').textContent = KE.toFixed(2);
+            
+            // Заполнение промежуточных результатов
+            document.getElementById('sigma1_val').textContent = sigma1.toFixed(3) + ' МН/м²';
+            document.getElementById('sigma2_val').textContent = sigma2.toFixed(3) + ' МН/м²';
+            document.getElementById('s1_v1_val').textContent = (s1_v1 * 1000).toFixed(3) + ' мм';
+            document.getElementById('s2_v1_val').textContent = (s2_v1 * 1000).toFixed(3) + ' мм';
+            document.getElementById('delta_s_v1_val').textContent = (deltaS_v1 * 1000).toFixed(3) + ' мм';
+            document.getElementById('s1_v2_val').textContent = (s1_v2 * 1000).toFixed(3) + ' мм';
+            document.getElementById('s2_v2_val').textContent = (s2_v2 * 1000).toFixed(3) + ' мм';
+            document.getElementById('delta_s_v2_val').textContent = (deltaS_v2 * 1000).toFixed(3) + ' мм';
+            
+            // Оценка качества уплотнения
+            const qualityMessage = document.getElementById('qualityMessage');
+            if (KE <= 2.5) {
+                qualityMessage.className = 'info-text success';
+                qualityMessage.innerHTML = '<strong>✔ Степень уплотнения достаточная</strong> (K<sub>E</sub> ≤ 2.5)';
+            } else {
+                qualityMessage.className = 'info-text warning';
+                qualityMessage.innerHTML = '<strong>⚠ Степень уплотнения недостаточная</strong> (K<sub>E</sub> > 2.5)';
+            }
+            
+            document.getElementById('results').style.display = 'block';
+            
+            // Построение графика
+            drawChart();
+        }
+        
+        function drawChart() {
+            const plateSize = parseInt(document.getElementById('plateSize').value);
+            const stresses = stressValues[plateSize];
+            const settlements = getAllSettlements();
+            
+            // Подготовка данных для графика
+            const primaryLoading = {
+                x: stresses.primary,
+                y: settlements.slice(0, stresses.primary.length),
+                mode: 'lines+markers',
+                name: 'Первичное нагружение',
+                line: { color: '#667eea', width: 3 },
+                marker: { size: 8 }
+            };
+            
+            const unloadStartIdx = stresses.primary.length - 1;
+            const unloading = {
+                x: [stresses.primary[stresses.primary.length - 1], ...stresses.unload],
+                y: [settlements[unloadStartIdx], ...settlements.slice(stresses.primary.length, stresses.primary.length + stresses.unload.length)],
+                mode: 'lines+markers',
+                name: 'Разгрузка',
+                line: { color: '#f44336', width: 3, dash: 'dash' },
+                marker: { size: 8 }
+            };
+            
+            // Исправление: вторичное нагружение начинается с последней точки разгрузки
+            const secondaryStartIdx = stresses.primary.length + stresses.unload.length;
+            const lastUnloadPoint = settlements[stresses.primary.length + stresses.unload.length - 1]; // Последняя точка разгрузки
+            const secondaryLoading = {
+                x: [stresses.unload[stresses.unload.length - 1], ...stresses.secondary],
+                y: [lastUnloadPoint, ...settlements.slice(secondaryStartIdx)],
+                mode: 'lines+markers',
+                name: 'Вторичное нагружение',
+                line: { color: '#4caf50', width: 3 },
+                marker: { size: 8 }
+            };
+            
+            const layout = {
+                title: {
+                    text: 'График испытания статическим штампом',
+                    font: { size: 20 }
+                },
+                xaxis: {
+                    title: 'Нагрузка σ, МН/м²',
+                    gridcolor: '#e0e0e0',
+                    zeroline: true,
+                    zerolinecolor: '#969696',
+                    zerolinewidth: 2
+                },
+                yaxis: {
+                    title: 'Осадка s, мм',
+                    gridcolor: '#e0e0e0',
+                    zeroline: true,
+                    zerolinecolor: '#969696',
+                    zerolinewidth: 2,
+                    autorange: 'reversed'
+                },
+                legend: {
+                    x: 0.7,
+                    y: 0.9,
+                    bgcolor: 'rgba(255, 255, 255, 0.9)',
+                    bordercolor: '#444',
+                    borderwidth: 1
+                },
+                plot_bgcolor: '#fafafa',
+                paper_bgcolor: 'white',
+                font: { family: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif' }
+            };
+            
+            const data = [primaryLoading, unloading, secondaryLoading];
+            
+            Plotly.newPlot('chart', data, layout, {responsive: true});
+            document.getElementById('chartContainer').style.display = 'block';
+        }
+        
+        function exportToExcel() {
+            if (!currentData.results) {
+                alert('Сначала выполните расчет');
+                return;
+            }
+            
+            const wb = XLSX.utils.book_new();
+            
+            // Лист с исходными данными
+            const dataSheet = [];
+            dataSheet.push(['Расчет по ОДМ 218.5.007-2016']);
+            dataSheet.push(['Место проведения испытания', document.getElementById('testLocation').value || 'Не указано']);
+            dataSheet.push(['Диаметр штампа, мм', currentData.plateSize]);
+            dataSheet.push(['Дата испытания', new Date().toLocaleDateString('ru-RU')]);
+            dataSheet.push([]);
+            dataSheet.push(['Этап испытания', 'Нагрузка σ, МН/м²', 'Осадка s, мм']);
+            
+            const stresses = stressValues[currentData.plateSize];
+            let idx = 0;
+            
+            // Первичное нагружение
+            stresses.primary.forEach((stress, i) => {
+                dataSheet.push(['Первичное нагружение', stress, currentData.settlements[idx++] || 0]);
+            });
+            
+            // Разгрузка
+            stresses.unload.forEach((stress, i) => {
+                dataSheet.push(['Разгрузка', stress, currentData.settlements[idx++] || 0]);
+            });
+            
+            // Вторичное нагружение
+            stresses.secondary.forEach((stress, i) => {
+                dataSheet.push(['Вторичное нагружение', stress, currentData.settlements[idx++] || 0]);
+            });
+            
+            dataSheet.push([]);
+            dataSheet.push(['Результаты расчета']);
+            dataSheet.push(['Модуль общей деформации Ev1, МН/м²', currentData.results.Ev1.toFixed(1)]);
+            dataSheet.push(['Модуль упругости Ev2, МН/м²', currentData.results.Ev2.toFixed(1)]);
+            dataSheet.push(['Модульный коэффициент KE', currentData.results.KE.toFixed(2)]);
+            dataSheet.push([]);
+            dataSheet.push(['Промежуточные расчеты']);
+            dataSheet.push(['σ1 (30% от max), МН/м²', currentData.results.sigma1.toFixed(3)]);
+            dataSheet.push(['σ2 (70% от max), МН/м²', currentData.results.sigma2.toFixed(3)]);
+            dataSheet.push(['s1_v1, мм', currentData.results.s1_v1.toFixed(3)]);
+            dataSheet.push(['s2_v1, мм', currentData.results.s2_v1.toFixed(3)]);
+            dataSheet.push(['Δs_v1, мм', currentData.results.deltaS_v1.toFixed(3)]);
+            dataSheet.push(['s1_v2, мм', currentData.results.s1_v2.toFixed(3)]);
+            dataSheet.push(['s2_v2, мм', currentData.results.s2_v2.toFixed(3)]);
+            dataSheet.push(['Δs_v2, мм', currentData.results.deltaS_v2.toFixed(3)]);
+            
+            const ws = XLSX.utils.aoa_to_sheet(dataSheet);
+            XLSX.utils.book_append_sheet(wb, ws, "Расчет");
+            
+            // Сохранение файла
+            const date = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `Штамповые_испытания_${currentData.plateSize}мм_${date}.xlsx`);
+        }
+        
+        function exportToPDF() {
+            if (!currentData.results) {
+                alert('Сначала выполните расчет');
+                return;
+            }
+            
+            // Создаем временный div для рендеринга русского текста
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.background = 'white';
+            tempDiv.style.padding = '20px';
+            tempDiv.style.fontFamily = 'Arial, sans-serif';
+            document.body.appendChild(tempDiv);
+            
+            // Формируем HTML контент
+            const testLocation = document.getElementById('testLocation').value || 'Не указано';
+            tempDiv.innerHTML = `
+                <div style="width: 800px; padding: 20px; background: white;">
+                    <h1 style="text-align: center; font-size: 24px; margin-bottom: 20px;">
+                        Расчет по ОДМ 218.5.007-2016
+                    </h1>
+                    <p style="font-size: 16px; margin: 10px 0;"><strong>Место проведения испытания:</strong> ${testLocation}</p>
+                    <p style="font-size: 16px; margin: 10px 0;"><strong>Диаметр штампа:</strong> ${currentData.plateSize} мм</p>
+                    <p style="font-size: 16px; margin: 10px 0;"><strong>Дата испытания:</strong> ${new Date().toLocaleDateString('ru-RU')}</p>
+                    
+                    <h2 style="font-size: 20px; margin-top: 30px; margin-bottom: 15px; color: #333;">Результаты расчета</h2>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr style="background: #f0f0f0;">
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Модуль общей деформации E<sub>v1</sub></strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${currentData.results.Ev1.toFixed(1)} МН/м²</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Модуль упругости E<sub>v2</sub></strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${currentData.results.Ev2.toFixed(1)} МН/м²</td>
+                        </tr>
+                        <tr style="background: #f0f0f0;">
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Модульный коэффициент K<sub>E</sub></strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${currentData.results.KE.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Степень уплотнения</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; color: ${currentData.results.KE <= 2.5 ? 'green' : 'orange'};">
+                                ${currentData.results.KE <= 2.5 ? '✓ ДОСТАТОЧНАЯ' : '⚠ НЕДОСТАТОЧНАЯ'}
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <h2 style="font-size: 18px; margin-top: 30px; margin-bottom: 15px; color: #333;">Промежуточные расчеты</h2>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">σ₁ (30% от max)</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${currentData.results.sigma1.toFixed(3)} МН/м²</td>
+                        </tr>
+                        <tr style="background: #f9f9f9;">
+                            <td style="padding: 8px; border: 1px solid #ddd;">σ₂ (70% от max)</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${currentData.results.sigma2.toFixed(3)} МН/м²</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">s₁ᵛ¹ (первичное)</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${currentData.results.s1_v1.toFixed(3)} мм</td>
+                        </tr>
+                        <tr style="background: #f9f9f9;">
+                            <td style="padding: 8px; border: 1px solid #ddd;">s₂ᵛ¹ (первичное)</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${currentData.results.s2_v1.toFixed(3)} мм</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Δsᵛ¹</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${currentData.results.deltaS_v1.toFixed(3)} мм</td>
+                        </tr>
+                        <tr style="background: #f9f9f9;">
+                            <td style="padding: 8px; border: 1px solid #ddd;">s₁ᵛ² (вторичное)</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${currentData.results.s1_v2.toFixed(3)} мм</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">s₂ᵛ² (вторичное)</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${currentData.results.s2_v2.toFixed(3)} мм</td>
+                        </tr>
+                        <tr style="background: #f9f9f9;">
+                            <td style="padding: 8px; border: 1px solid #ddd;">Δsᵛ²</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${currentData.results.deltaS_v2.toFixed(3)} мм</td>
+                        </tr>
+                    </table>
+                    
+                    <h2 style="font-size: 18px; margin-top: 30px; margin-bottom: 15px; color: #333;">Данные испытаний</h2>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+                        <thead>
+                            <tr style="background: #667eea; color: white;">
+                                <th style="padding: 10px; border: 1px solid #ddd;">Этап испытания</th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Нагрузка σ, МН/м²</th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Осадка s, мм</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pdfTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            // Заполняем таблицу данными
+            const tbody = tempDiv.querySelector('#pdfTableBody');
+            const stresses = stressValues[currentData.plateSize];
+            let idx = 0;
+            let rowHTML = '';
+            
+            // Первичное нагружение
+            stresses.primary.forEach((stress, i) => {
+                const bgColor = i % 2 === 0 ? '#ffffff' : '#f9f9f9';
+                rowHTML += `<tr style="background: ${bgColor};">
+                    <td style="padding: 8px; border: 1px solid #ddd;">Первичное нагружение</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${stress.toFixed(3)}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${(currentData.settlements[idx++] || 0).toFixed(2)}</td>
+                </tr>`;
+            });
+            
+            // Разгрузка
+            stresses.unload.forEach((stress, i) => {
+                const bgColor = (stresses.primary.length + i) % 2 === 0 ? '#ffffff' : '#f9f9f9';
+                rowHTML += `<tr style="background: ${bgColor};">
+                    <td style="padding: 8px; border: 1px solid #ddd;">Разгрузка</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${stress.toFixed(3)}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${(currentData.settlements[idx++] || 0).toFixed(2)}</td>
+                </tr>`;
+            });
+            
+            // Вторичное нагружение
+            stresses.secondary.forEach((stress, i) => {
+                const bgColor = (stresses.primary.length + stresses.unload.length + i) % 2 === 0 ? '#ffffff' : '#f9f9f9';
+                rowHTML += `<tr style="background: ${bgColor};">
+                    <td style="padding: 8px; border: 1px solid #ddd;">Вторичное нагружение</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${stress.toFixed(3)}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${(currentData.settlements[idx++] || 0).toFixed(2)}</td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = rowHTML;
+            
+            // Используем html2canvas для создания изображения из HTML
+            html2canvas(tempDiv.firstElementChild, {
+                scale: 2,
+                logging: false,
+                useCORS: true
+            }).then(canvas => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                // Добавляем первую страницу с данными
+                const imgWidth = 190;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                // Если контент не помещается на одну страницу, масштабируем
+                if (imgHeight > 280) {
+                    const scaleFactor = 280 / imgHeight;
+                    doc.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, imgWidth * scaleFactor, 280);
+                } else {
+                    doc.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, imgWidth, imgHeight);
+                }
+                
+                // Удаляем временный элемент
+                document.body.removeChild(tempDiv);
+                
+                // Добавляем график на вторую страницу
+                const chartContainer = document.getElementById('chartContainer');
+                if (chartContainer && chartContainer.style.display !== 'none') {
+                    html2canvas(document.getElementById('chart'), {
+                        scale: 4,
+                        logging: false,
+                        backgroundColor: 'white'
+                    }).then(chartCanvas => {
+                        // Добавляем страницу в альбомной ориентации для графика
+                        doc.addPage('l');
+                        
+                        // Для альбомной ориентации A4
+                        const pageWidth = 297;
+                        const pageHeight = 210;
+                        const margins = 10;
+                        
+                        // Максимальные размеры для графика
+                        const maxChartWidth = pageWidth - (margins * 2);
+                        const maxChartHeight = pageHeight - (margins * 2);
+                        
+                        // Вычисляем размеры с сохранением пропорций
+                        const chartAspectRatio = chartCanvas.width / chartCanvas.height;
+                        let finalWidth, finalHeight;
+                        
+                        if (chartAspectRatio > (maxChartWidth / maxChartHeight)) {
+                            // График шире - масштабируем по ширине
+                            finalWidth = maxChartWidth;
+                            finalHeight = finalWidth / chartAspectRatio;
+                        } else {
+                            // График выше - масштабируем по высоте
+                            finalHeight = maxChartHeight;
+                            finalWidth = finalHeight * chartAspectRatio;
+                        }
+                        
+                        // Центрируем график на странице
+                        const xOffset = (pageWidth - finalWidth) / 2;
+                        const yOffset = (pageHeight - finalHeight) / 2;
+                        
+                        doc.addImage(chartCanvas.toDataURL('image/png'), 'PNG', xOffset, yOffset, finalWidth, finalHeight);
+                        
+                        // Сохранение файла
+                        const date = new Date().toISOString().slice(0, 10);
+                        doc.save('Штамповые_испытания_' + currentData.plateSize + 'мм_' + date + '.pdf');
+                    }).catch(err => {
+                        console.log('Error capturing chart:', err);
+                        // Сохраняем PDF без графика
+                        const date = new Date().toISOString().slice(0, 10);
+                        doc.save('Штамповые_испытания_' + currentData.plateSize + 'мм_' + date + '.pdf');
+                    });
+                } else {
+                    // Сохранение файла без графика
+                    const date = new Date().toISOString().slice(0, 10);
+                    doc.save('Штамповые_испытания_' + currentData.plateSize + 'мм_' + date + '.pdf');
+                }
+            }).catch(err => {
+                console.log('Error creating PDF:', err);
+                document.body.removeChild(tempDiv);
+                alert('Ошибка при создании PDF. Попробуйте еще раз.');
+            });
+        }
+        
+        // Инициализация при загрузке страницы
+        window.onload = function() {
+            updateTable();
+        };
+    </script>
+</body>
+</html>
